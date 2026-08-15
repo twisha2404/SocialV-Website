@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="jakarta.faces.passthrough">
+<f:metadata>
+    <f:viewAction action="#{adminBean.checkAdmin()}" />
+</f:metadata>
+<h:head>
+    <title>Admin Dashboard • Control Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            background-color: #09090b;
+            color: #f4f4f5;
+            height: 100vh;
+            display: flex;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background: #000000;
+            border-right: 1px solid #27272a;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #3797f0, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: #ffffff;
+            background: #18181b;
+        }
+
+        .nav-btn.active {
+            border-left: 3px solid #3797f0;
+            border-top-left-radius: 2px;
+            border-bottom-left-radius: 2px;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            color: #f87171;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Main Workspace */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #a1a1aa;
+            margin: 4px 0 0 0;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: #121214;
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: #3f3f46;
+        }
+
+        .metric-details h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #a1a1aa;
+            margin: 0 0 8px 0;
+        }
+
+        .metric-details p {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .metric-icon {
+            font-size: 28px;
+            color: #3797f0;
+            background: rgba(55, 151, 240, 0.1);
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Panel Card */
+        .panel-card {
+            background: #121214;
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 24px;
+            border-bottom: 1px solid #27272a;
+            font-weight: 600;
+            font-size: 18px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #18181b;
+            color: #a1a1aa;
+            font-weight: 500;
+            padding: 16px 24px;
+            border-bottom: 1px solid #27272a;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #27272a;
+            color: #e4e4e7;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #18181b;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid #27272a;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1.5px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1.5px solid rgba(34, 197, 94, 0.2);
+        }
+
+        /* Action Buttons */
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid #27272a;
+            color: #a1a1aa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            color: #ffffff;
+            border-color: #52525b;
+            background: #1e1e24;
+        }
+
+        .action-btn-danger {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .action-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .action-btn-primary {
+            border-color: rgba(55, 151, 240, 0.3);
+            color: #60a5fa;
+        }
+
+        .action-btn-primary:hover {
+            background: rgba(55, 151, 240, 0.1);
+            color: #3797f0;
+            border-color: #3797f0;
+        }
+
+        /* Modal dialog overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-card {
+            background: #121214;
+            border: 1px solid #27272a;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modal-form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #a1a1aa;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #27272a;
+            background: #18181b;
+            color: #ffffff;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .modal-input:focus {
+            border-color: #3797f0;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-confirm {
+            flex: 1;
+            padding: 12px;
+            background: #3797f0;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-confirm:hover {
+            background: #1877f2;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #27272a;
+            color: #e4e4e7;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-cancel:hover {
+            background: #3f3f46;
+        }
+    </style>
+</h:head>
+<h:body>
+    <!-- Left Navigation Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Admin Console</span>
+        </div>
+        
+        <h:form style="display:contents">
+            <ul class="nav-list">
+                <li>
+                    <h:commandLink action="#{adminBean.switchTab('users')}" 
+                                   styleClass="nav-btn #{adminBean.activeTab == 'users' ? 'active' : ''}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Users</span>
+                    </h:commandLink>
+                </li>
+                <li>
+                    <h:commandLink action="#{adminBean.switchTab('posts')}" 
+                                   styleClass="nav-btn #{adminBean.activeTab == 'posts' ? 'active' : ''}">
+                        <i class="bi bi-file-earmark-post-fill"></i>
+                        <span>Posts</span>
+                    </h:commandLink>
+                </li>
+                <li>
+                    <h:commandLink action="#{adminBean.switchTab('comments')}" 
+                                   styleClass="nav-btn #{adminBean.activeTab == 'comments' ? 'active' : ''}">
+                        <i class="bi bi-chat-left-text-fill"></i>
+                        <span>Comments</span>
+                    </h:commandLink>
+                </li>
+                <li>
+                    <h:commandLink action="#{adminBean.switchTab('likes')}" 
+                                   styleClass="nav-btn #{adminBean.activeTab == 'likes' ? 'active' : ''}">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>Likes</span>
+                    </h:commandLink>
+                </li>
+                
+                <li style="margin-top:auto">
+                    <h:commandLink action="#{loginBean.logout()}" styleClass="nav-btn logout-btn">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span>Exit Dashboard</span>
+                    </h:commandLink>
+                </li>
+            </ul>
+        </h:form>
+    </div>
+
+    <!-- Main Workspace Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p>Welcome back, Administrator. System monitoring and control panel.</p>
+            </div>
+            
+            <h:link outcome="feed" styleClass="action-btn" style="border-radius:20px; padding: 10px 18px">
+                <i class="bi bi-house-door"></i> View Main Site
+            </h:link>
+        </div>
+
+        <!-- System Stats Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-details">
+                    <h3>Total Users</h3>
+                    <p>#{adminBean.users.size()}</p>
+                </div>
+                <div class="metric-icon" style="color:#60a5fa; background:rgba(96,165,250,0.1)">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-details">
+                    <h3>Total Posts</h3>
+                    <p>#{adminBean.posts.size()}</p>
+                </div>
+                <div class="metric-icon" style="color:#a78bfa; background:rgba(167,139,250,0.1)">
+                    <i class="bi bi-file-earmark-post"></i>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-details">
+                    <h3>Comments</h3>
+                    <p>#{adminBean.comments.size()}</p>
+                </div>
+                <div class="metric-icon" style="color:#f472b6; background:rgba(244,114,182,0.1)">
+                    <i class="bi bi-chat-left-text"></i>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-details">
+                    <h3>Likes</h3>
+                    <p>#{adminBean.likes.size()}</p>
+                </div>
+                <div class="metric-icon" style="color:#f87171; background:rgba(248,113,113,0.1)">
+                    <i class="bi bi-heart"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active View Panels -->
+        <div class="panel-card">
+            <h:panelGroup rendered="#{adminBean.activeTab == 'users'}">
+                <div class="panel-header">
+                    <span>Manage User Accounts</span>
+                </div>
+                <div class="table-container">
+                    <h:form id="usersForm">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User Profile</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminBean.users}" var="u">
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <img src="#{u.profilePic}" class="avatar" onerror="this.src='https://ui-avatars.com/api/?name=#{u.username}'" />
+                                                <span>#{u.fullName}</span>
+                                            </div>
+                                        </td>
+                                        <td>@#{u.username}</td>
+                                        <td>#{u.groupmaster.groupName}</td>
+                                        <td>
+                                            <h:panelGroup rendered="#{u.blocked}">
+                                                <span class="badge badge-danger">Blocked</span>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{not u.blocked}">
+                                                <span class="badge badge-success">Active</span>
+                                            </h:panelGroup>
+                                        </td>
+                                        <td style="text-align:right">
+                                            <div class="action-group" style="justify-content: flex-end;">
+                                                <button type="button" class="action-btn action-btn-primary" 
+                                                        onclick="openEditModal(this)"
+                                                        data-userid="#{u.userId}"
+                                                        data-fullname="#{u.fullName}"
+                                                        data-username="#{u.username}"
+                                                        data-pic="#{u.profilePic}">
+                                                    <i class="bi bi-pencil"></i> Edit
+                                                </button>
+                                                
+                                                <h:commandLink action="#{adminBean.toggleBlockUser(u.userId)}" styleClass="action-btn #{u.blocked ? 'badge-success' : 'action-btn-danger'}">
+                                                    <i class="bi #{u.blocked ? 'bi-shield-check' : 'bi-shield-slash'}"></i>
+                                                    <span>#{u.blocked ? 'Unblock' : 'Block'}</span>
+                                                </h:commandLink>
+                                                
+                                                <h:commandLink action="#{adminBean.deleteUser(u.userId)}" 
+                                                               onclick="return confirm('WARNING: Deleting this user will permanently erase all posts, comments, likes, follower relationships, messages, and account details. Proceed?');" 
+                                                               styleClass="action-btn action-btn-danger">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </h:commandLink>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{adminBean.activeTab == 'posts'}">
+                <div class="panel-header">
+                    <span>Manage User Posts</span>
+                </div>
+                <div class="table-container">
+                    <h:form id="postsForm">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Media</th>
+                                    <th>Author</th>
+                                    <th>Caption</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminBean.posts}" var="p">
+                                    <tr>
+                                        <td>
+                                            <img src="#{p.mediaUrl}" style="width:45px; height:45px; object-fit:cover; border-radius:6px; border:1px solid #27272a" onerror="this.style.display='none'" />
+                                        </td>
+                                        <td>@#{p.user.username}</td>
+                                        <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            #{p.caption}
+                                        </td>
+                                        <td>
+                                            <h:panelGroup rendered="#{p.blocked}">
+                                                <span class="badge badge-danger">Blocked</span>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{not p.blocked}">
+                                                <span class="badge badge-success">Visible</span>
+                                            </h:panelGroup>
+                                        </td>
+                                        <td style="text-align:right">
+                                            <div class="action-group" style="justify-content: flex-end;">
+                                                <h:commandLink action="#{adminBean.toggleBlockPost(p.postId)}" styleClass="action-btn #{p.blocked ? 'badge-success' : 'action-btn-danger'}">
+                                                    <i class="bi #{p.blocked ? 'bi-shield-check' : 'bi-shield-slash'}"></i>
+                                                    <span>#{p.blocked ? 'Unblock' : 'Block'}</span>
+                                                </h:commandLink>
+                                                
+                                                <h:commandLink action="#{adminBean.deletePost(p.postId)}" 
+                                                               onclick="return confirm('Are you sure you want to delete this post? All likes and comments on it will also be deleted.');" 
+                                                               styleClass="action-btn action-btn-danger">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </h:commandLink>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{adminBean.activeTab == 'comments'}">
+                <div class="panel-header">
+                    <span>Manage Comments</span>
+                </div>
+                <div class="table-container">
+                    <h:form id="commentsForm">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Comment</th>
+                                    <th>Post Author</th>
+                                    <th>Commented By</th>
+                                    <th style="text-align:right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminBean.comments}" var="c">
+                                    <tr>
+                                        <td style="max-width:300px; line-height: 1.4">
+                                            <div style="font-weight: 500; color: #ffffff">#{c.content}</div>
+                                        </td>
+                                        <td>@#{c.post.user.username}</td>
+                                        <td>@#{c.user.username}</td>
+                                        <td style="text-align:right">
+                                            <div class="action-group" style="justify-content: flex-end;">
+                                                <h:commandLink action="#{adminBean.deleteComment(c.commentId)}" 
+                                                               onclick="return confirm('Are you sure you want to delete this comment?');" 
+                                                               styleClass="action-btn action-btn-danger">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </h:commandLink>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{adminBean.activeTab == 'likes'}">
+                <div class="panel-header">
+                    <span>Manage Likes</span>
+                </div>
+                <div class="table-container">
+                    <h:form id="likesForm">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Liked Post (Caption)</th>
+                                    <th>Post Owner</th>
+                                    <th>Liked By</th>
+                                    <th style="text-align:right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminBean.likes}" var="l">
+                                    <tr>
+                                        <td>
+                                            <span style="font-style:italic; color:#a1a1aa">"#{l.post.caption}"</span>
+                                        </td>
+                                        <td>@#{l.post.user.username}</td>
+                                        <td>@#{l.user.username}</td>
+                                        <td style="text-align:right">
+                                            <div class="action-group" style="justify-content: flex-end;">
+                                                <h:commandLink action="#{adminBean.deleteLike(l.likeId)}" 
+                                                               onclick="return confirm('Are you sure you want to remove this like?');" 
+                                                               styleClass="action-btn action-btn-danger">
+                                                    <i class="bi bi-heartbreak"></i> Remove Like
+                                                </h:commandLink>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </h:form>
+                </div>
+            </h:panelGroup>
+        </div>
+    </div>
+
+    <!-- Edit User Modal Dialog -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Edit User Profile</h2>
+            </div>
+            
+            <h:form id="editForm" style="display:flex; flex-direction:column; gap:16px;">
+                <h:inputHidden id="editUserId" value="#{adminBean.editUser.userId}"/>
+                
+                <div class="modal-form-group">
+                    <label for="editFullName">Full Name</label>
+                    <h:inputText id="editFullName" value="#{adminBean.editUser.fullName}" styleClass="modal-input" required="true" requiredMessage="Full Name is required."/>
+                </div>
+                
+                <div class="modal-form-group">
+                    <label for="editUsername">Username</label>
+                    <h:inputText id="editUsername" value="#{adminBean.editUser.username}" styleClass="modal-input" required="true" requiredMessage="Username is required."/>
+                </div>
+                
+                <div class="modal-form-group">
+                    <label for="editProfilePic">Profile Picture URL</label>
+                    <h:inputText id="editProfilePic" value="#{adminBean.editUser.profilePic}" styleClass="modal-input" required="true" requiredMessage="Profile picture URL is required."/>
+                </div>
+                
+                <div class="modal-footer">
+                    <h:commandButton action="#{adminBean.saveUserEdit()}" value="Save Changes" styleClass="btn-confirm" />
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </h:form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        //<![CDATA[
+        function openEditModal(button) {
+            var userId = button.getAttribute('data-userid');
+            var fullname = button.getAttribute('data-fullname');
+            var username = button.getAttribute('data-username');
+            var profilepic = button.getAttribute('data-pic');
+            
+            document.getElementById('editForm:editUserId').value = userId;
+            document.getElementById('editForm:editFullName').value = fullname;
+            document.getElementById('editForm:editUsername').value = username;
+            document.getElementById('editForm:editProfilePic').value = profilepic;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        //]]>
+    </script>
+</h:body>
+</html>

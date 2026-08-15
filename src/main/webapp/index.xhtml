@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="jakarta.faces.passthrough">
+<h:head>
+    <title>Instagram - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Grand+Hotel&amp;display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .login-container {
+            background: #121212;
+            border: 1px solid #262626;
+            padding: 40px 35px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-family: 'Grand Hotel', cursive;
+            font-size: 52px;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 12px;
+            border: 1px solid #363636;
+            border-radius: 8px;
+            background: #1c1c1e;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: #a855f7;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            display: block;
+            margin-top: 25px;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .signup-link:hover {
+            color: #e9d5ff;
+        }
+        
+        .signup-link span {
+            color: #a855f7;
+            font-weight: 600;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="login-container">
+        <div class="logo">Instagram</div>
+        <h:messages globalOnly="true" errorStyle="color: #ef4444;" infoStyle="color: #10b981;" style="margin-bottom: 15px; font-size: 14px; list-style-type: none; padding: 0; text-align: center;" />
+        <h:form id="loginForm">
+            <div class="input-group">
+                <h:inputText id="username" value="#{loginBean.username}" required="true" styleClass="input-field" p:placeholder="Username" />
+            </div>
+            <div class="input-group">
+                <h:inputSecret id="password" value="#{loginBean.password}" required="true" styleClass="input-field" p:placeholder="Password" />
+            </div>
+            <h:commandButton value="Log In" action="#{loginBean.login()}" styleClass="btn"/>
+        </h:form>
+        <h:link outcome="forgot" styleClass="signup-link" style="margin-top: 15px; font-size: 13px;">Forgot password?</h:link>
+        <h:link outcome="register" styleClass="signup-link" style="margin-top: 20px;">Don't have an account? <span>Sign up</span></h:link>
+    </div>
+</h:body>
+</html>

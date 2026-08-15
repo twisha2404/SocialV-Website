@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="jakarta.faces.passthrough">
+<f:metadata>
+    <f:viewAction action="#{loginBean.checkLogin()}" />
+</f:metadata>
+<h:head>
+    <title>Profile • Instagram</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&amp;display=swap');
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            background-color: #000000;
+            color: #ffffff;
+            padding-bottom: 80px;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: #000000;
+            display: flex;
+            justify-content: space-around;
+            padding: 0;
+            border-top: 1px solid #262626;
+            z-index: 1000;
+            align-items: center;
+        }
+        .nav-item {
+            position: relative;
+            text-align: center;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 22px;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            transform: scale(1.15);
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 1.5px solid #000000;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding: 20px 10px;
+            border-bottom: 1px solid #1c1c1e;
+        }
+
+        .profile-pic {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #262626;
+            padding: 2.5px;
+            background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .username-span {
+            font-size: 13px;
+            color: #a1a1aa;
+            font-weight: 400;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .stat-val {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            color: #a1a1aa;
+        }
+
+        /* Profile Buttons */
+        .btn-action {
+            background: #3797f0;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #1877f2;
+        }
+
+        .btn-outline {
+            background: #262626;
+            border: 1px solid #363636;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #363636;
+        }
+
+        /* Grid Layout for Posts */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-top: 25px;
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            background: #121212;
+            overflow: hidden;
+            border: 1px solid #1c1c1e;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .grid-item:hover img {
+            transform: scale(1.04);
+        }
+
+        .grid-item-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 10px;
+            text-align: center;
+            color: #a1a1aa;
+            font-size: 12px;
+            box-sizing: border-box;
+            background-color: #0b0b0c;
+        }
+
+        .stat-item.clickable {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .stat-item.clickable:hover {
+            opacity: 0.7;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #121212;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 400px;
+            display: flex;
+            flex-direction: column;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #262626;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            padding: 10px 15px;
+            flex: 1;
+        }
+
+        .user-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #1c1c1e;
+        }
+        
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .modal-profile-pic {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #262626;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-details .fullname {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-details .username {
+            font-size: 12px;
+            color: #a1a1aa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #262626;
+            background: #1c1c1e;
+            color: #ffffff;
+            outline: none;
+            font-size: 13px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            border-color: #3797f0;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="bottom-nav">
+        <h:link outcome="feed" styleClass="nav-item"><i class="bi bi-house"></i></h:link>
+        <h:link outcome="chat" styleClass="nav-item">
+            <i class="bi bi-chat-dots"></i>
+            <h:panelGroup rendered="#{loginBean.hasUnseenMessages}">
+                <span class="badge-dot"></span>
+            </h:panelGroup>
+        </h:link>
+        <h:link outcome="people" styleClass="nav-item"><i class="bi bi-person-plus"></i></h:link>
+        <h:link outcome="profile" styleClass="nav-item active"><i class="bi bi-person-fill"></i></h:link>
+    </div>
+
+    <div class="container">
+        <h:form id="profileForm">
+            <!-- Profile Info Header -->
+            <div class="profile-header">
+                <img src="#{profileBean.profileUser.profilePic}" alt="avatar" class="profile-pic" onerror="this.src='https://ui-avatars.com/api/?name=#{profileBean.profileUser.username}'"/>
+                <div class="profile-info">
+                    <h2>
+                        <span>#{profileBean.profileUser.fullName}</span>
+                        <span class="username-span">@#{profileBean.profileUser.username}</span>
+                    </h2>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-val">#{profileBean.userPosts.size()}</span>
+                            <span class="stat-label">posts</span>
+                        </div>
+                        <div class="stat-item clickable" onclick="openModal('followersModal')">
+                            <span class="stat-val">#{profileBean.followersCount}</span>
+                            <span class="stat-label">followers</span>
+                        </div>
+                        <div class="stat-item clickable" onclick="openModal('followingModal')">
+                            <span class="stat-val">#{profileBean.followingCount}</span>
+                            <span class="stat-label">following</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bio & Optional Details display -->
+                    <div style="margin-top: 15px; font-size:14px; color:#e4e4e7; line-height:1.5;">
+                        <h:panelGroup rendered="#{not empty profileBean.profileUser.bio}">
+                            <div style="white-space: pre-line; margin-bottom: 8px;">#{profileBean.profileUser.bio}</div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not empty profileBean.profileUser.gender or not empty profileBean.profileUser.phone or not empty profileBean.profileUser.dob}">
+                            <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:#a1a1aa; margin-top:8px;">
+                                <h:panelGroup rendered="#{not empty profileBean.profileUser.gender}">
+                                    <span><i class="bi bi-gender-ambiguous"></i> #{profileBean.profileUser.gender}</span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{not empty profileBean.profileUser.phone}">
+                                    <span><i class="bi bi-telephone"></i> #{profileBean.profileUser.phone}</span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{not empty profileBean.profileUser.dob}">
+                                    <span><i class="bi bi-calendar-event"></i> 
+                                        <h:outputText value="#{profileBean.profileUser.dob}">
+                                            <f:convertDateTime pattern="dd MMM yyyy" type="date"/>
+                                        </h:outputText>
+                                    </span>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <!-- Other User Profile actions -->
+                        <h:panelGroup rendered="#{not profileBean.myProfile}">
+                            <h:commandLink action="#{profileBean.requestFollow}" rendered="#{profileBean.followStatus == 'none'}" styleClass="btn-action">Follow</h:commandLink>
+                            <h:commandLink action="#{profileBean.requestFollow}" rendered="#{profileBean.followStatus == 'pending'}" styleClass="btn-outline">Requested</h:commandLink>
+                            <h:commandLink action="#{profileBean.requestFollow}" rendered="#{profileBean.followStatus == 'accepted'}" styleClass="btn-outline">Following</h:commandLink>
+                            
+                            <h:commandLink action="#{chatBean.startDirectChat(profileBean.profileUser.userId)}" styleClass="btn-outline" style="margin-left:8px;">Message</h:commandLink>
+                        </h:panelGroup>
+
+                        <!-- My Profile actions -->
+                        <h:panelGroup rendered="#{profileBean.myProfile}">
+                            <button type="button" class="btn-outline" onclick="openModal('editProfileModal')" style="margin-right: 8px;">Edit Profile</button>
+                            <h:commandLink action="#{loginBean.logout}" styleClass="btn-outline" style="border-color:#ef4444; color:#ef4444;">Log Out</h:commandLink>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Follow Requests (My Profile only) -->
+            <h:panelGroup rendered="#{profileBean.myProfile and not empty profileBean.pendingRequests}">
+                <div style="background:#121212; border:1px solid #262626; padding:20px; border-radius:12px; margin-top:20px;">
+                    <h3 style="margin:0 0 15px 0; font-size:15px; font-weight:600; color:white;">Follow Requests</h3>
+                    <ui:repeat value="#{profileBean.pendingRequests}" var="req">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1c1c1e; padding:10px 0;">
+                            <span style="font-size:14px; font-weight:600; color:white;">@#{req.followerUser.username} <span style="font-weight:400;color:#71717a;">wants to follow you</span></span>
+                            <div style="display:flex; gap:8px;">
+                                <h:commandButton action="#{profileBean.acceptRequest(req.followerUser.userId)}" value="Accept" styleClass="btn-action" style="padding:6px 12px; font-size:12px;"/>
+                                <h:commandButton action="#{profileBean.declineRequest(req.followerUser.userId)}" value="Ignore" styleClass="btn-outline" style="padding:6px 12px; font-size:12px; border-color:#ef4444; color:#ef4444;"/>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Posts Grid -->
+            <div class="grid">
+                <ui:repeat value="#{profileBean.userPosts}" var="vmp">
+                    <div class="grid-item" onclick="openPostOptionsModal(this)" data-postid="#{vmp.post.postId}" data-caption="#{vmp.post.caption}" data-mediaurl="#{vmp.post.mediaUrl}" data-myprofile="#{profileBean.myProfile}">
+                        <h:panelGroup rendered="#{not empty vmp.post.mediaUrl}">
+                            <h:panelGroup rendered="#{vmp.post.type == 'reel'}">
+                                <video src="#{vmp.post.mediaUrl}" loop="loop" muted="muted" autoplay="autoplay" style="width:100%; height:100%; object-fit:cover;"/>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{vmp.post.type != 'reel'}">
+                                <img src="#{vmp.post.mediaUrl}" onerror="this.style.display='none'"/>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{empty vmp.post.mediaUrl}">
+                            <div class="grid-item-placeholder">#{vmp.post.caption}</div>
+                        </h:panelGroup>
+                    </div>
+                </ui:repeat>
+            </div>
+        </h:form>
+    </div>
+
+    <!-- Followers Modal -->
+    <div id="followersModal" class="modal-backdrop" onclick="closeModalOnBackdrop(event, 'followersModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Followers</h3>
+                <button type="button" class="close-btn" onclick="closeModal('followersModal')">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <ui:repeat value="#{profileBean.followersList}" var="u">
+                    <div class="user-row">
+                        <a href="profile.xhtml?userId=#{u.userId}" class="user-link">
+                            <img src="#{u.profilePic}" alt="avatar" class="modal-profile-pic" onerror="this.src='https://ui-avatars.com/api/?name=#{u.username}'"/>
+                            <div class="user-details">
+                                <span class="fullname">#{u.fullName}</span>
+                                <span class="username">@#{u.username}</span>
+                            </div>
+                        </a>
+                    </div>
+                </ui:repeat>
+                <h:panelGroup rendered="#{empty profileBean.followersList}">
+                    <div class="empty-state">No followers yet.</div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </div>
+
+    <!-- Following Modal -->
+    <div id="followingModal" class="modal-backdrop" onclick="closeModalOnBackdrop(event, 'followingModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Following</h3>
+                <button type="button" class="close-btn" onclick="closeModal('followingModal')">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <ui:repeat value="#{profileBean.followingList}" var="u">
+                    <div class="user-row">
+                        <a href="profile.xhtml?userId=#{u.userId}" class="user-link">
+                            <img src="#{u.profilePic}" alt="avatar" class="modal-profile-pic" onerror="this.src='https://ui-avatars.com/api/?name=#{u.username}'"/>
+                            <div class="user-details">
+                                <span class="fullname">#{u.fullName}</span>
+                                <span class="username">@#{u.username}</span>
+                            </div>
+                        </a>
+                    </div>
+                </ui:repeat>
+                <h:panelGroup rendered="#{empty profileBean.followingList}">
+                    <div class="empty-state">Not following anyone yet.</div>
+                </h:panelGroup>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal-backdrop" onclick="closeModalOnBackdrop(event, 'editProfileModal')">
+        <div class="modal-content" style="max-height: 90vh; max-width: 420px;">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button type="button" class="close-btn" onclick="closeModal('editProfileModal')">&#215;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; overflow-y: auto;">
+                <h:form id="editProfileForm" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:16px;">
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Full Name</label>
+                        <h:inputText value="#{profileBean.editFullName}" styleClass="form-input" required="true" requiredMessage="Full Name is required."/>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Upload Profile Picture</label>
+                        <h:inputFile value="#{profileBean.profilePicFile}" styleClass="form-input" style="padding:6px;"/>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Or enter image URL</label>
+                        <h:inputText value="#{profileBean.editProfilePic}" styleClass="form-input"/>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Bio</label>
+                        <h:inputTextarea value="#{profileBean.editBio}" styleClass="form-input" style="height:80px; resize:none;" p:placeholder="Tell us about yourself..."/>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Gender</label>
+                        <h:selectOneMenu value="#{profileBean.editGender}" styleClass="form-input" style="width:100%; border:1px solid #262626; height: 38px;">
+                            <f:selectItem itemValue="" itemLabel="Select Gender..."/>
+                            <f:selectItem itemValue="Male" itemLabel="Male"/>
+                            <f:selectItem itemValue="Female" itemLabel="Female"/>
+                            <f:selectItem itemValue="Other" itemLabel="Other"/>
+                        </h:selectOneMenu>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Phone Number</label>
+                        <h:inputText value="#{profileBean.editPhone}" styleClass="form-input" p:type="tel" p:placeholder="e.g. +1234567890"/>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:12px; color:#a1a1aa; font-weight:500;">Date of Birth</label>
+                        <h:inputText value="#{profileBean.editDob}" styleClass="form-input" p:type="date">
+                            <f:convertDateTime pattern="yyyy-MM-dd" type="date"/>
+                        </h:inputText>
+                    </div>
+                    
+                    <div style="display:flex; gap:12px; margin-top:10px;">
+                        <h:commandButton action="#{profileBean.updateProfile}" value="Save Changes" styleClass="btn-action" style="flex:1; padding:10px; font-size:14px; font-weight:600; cursor:pointer;" />
+                        <button type="button" class="btn-outline" style="flex:1; padding:10px; font-size:14px; font-weight:600; cursor:pointer;" onclick="closeModal('editProfileModal')">Cancel</button>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Options / Detail Modal Overlay -->
+    <div id="postOptionsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; flex-direction:column;">
+        <div style="background:#121212; border:1px solid #262626; padding:25px; border-radius:12px; width:100%; max-width:400px; box-sizing:border-box; position:relative; max-height: 90vh; overflow-y: auto;">
+            <span onclick="closePostOptionsModal()" style="position:absolute; top:15px; right:20px; font-size:25px; color:#a1a1aa; cursor:pointer;">&#215;</span>
+            
+            <h3 id="modalTitle" style="margin-top:0; font-size:18px; font-weight:600; margin-bottom:20px; text-align:center; color:white;">Post Details</h3>
+            
+            <!-- Post Preview media -->
+            <div id="previewMediaContainer" style="width:100%; margin-bottom:15px; border-radius:8px; overflow:hidden; border:1px solid #262626; background:#000; display:flex; justify-content:center;">
+                <img id="previewImage" src="" style="max-width:100%; max-height:250px; object-fit:contain; display:none;"/>
+            </div>
+
+            <h:form id="postOptionsForm">
+                <h:inputHidden id="modalPostId" value="#{profileBean.editPostId}" />
+                
+                <!-- If my profile, allow edit inputs -->
+                <div id="editModeSection" style="display:none;">
+                    <div style="margin-bottom:15px;">
+                        <label style="font-size:12px; color:#a1a1aa; display:block; margin-bottom:6px;">Caption</label>
+                        <h:inputTextarea id="modalCaption" value="#{profileBean.editCaption}" styleClass="form-input" style="width:100%; box-sizing:border-box; height: 60px; resize:none;" rows="2"/>
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:12px; color:#a1a1aa; display:block; margin-bottom:6px;">Photo/Media URL</label>
+                        <h:inputText id="modalMediaUrl" value="#{profileBean.editMediaUrl}" styleClass="form-input" style="width:100%; box-sizing:border-box;"/>
+                    </div>
+                </div>
+
+                <!-- If visiting other profile, just show read-only caption -->
+                <div id="viewModeSection" style="display:none; margin-bottom:20px; background:#1c1c1e; padding:15px; border-radius:8px; border:1px solid #262626;">
+                    <strong style="color:white; font-size:13px; display:block; margin-bottom:4px;">@#{profileBean.profileUser.username}</strong>
+                    <span id="viewCaptionText" style="font-size:14px; color:#e4e4e7; line-height:1.4; word-wrap:break-word;"></span>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Edit Actions (Visible in EditMode) -->
+                    <div id="editActions" style="display:none; flex-direction:column; gap:10px; width:100%;">
+                        <h:commandButton action="#{profileBean.updatePost()}" value="Save Changes" styleClass="btn-action" style="width:100%; padding:10px; font-size:14px; font-weight:600; cursor:pointer;" />
+                        <h:commandButton action="#{profileBean.deletePost()}" value="Delete Post" styleClass="btn-outline" style="width:100%; padding:10px; font-size:14px; font-weight:600; cursor:pointer; border-color:#ef4444; color:#ef4444;" onclick="return confirm('Are you sure you want to delete this post?');" />
+                    </div>
+                    <!-- View Actions (Visible in ViewMode) -->
+                    <div id="viewActions" style="display:none; width:100%;">
+                        <button type="button" class="btn-outline" style="width:100%; padding:10px; font-size:14px; font-weight:600; cursor:pointer;" onclick="closePostOptionsModal()">Close</button>
+                    </div>
+                </div>
+            </h:form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function closeModalOnBackdrop(event, id) {
+            if (event.target.id === id) {
+                closeModal(id);
+            }
+        }
+
+        function openPostOptionsModal(element) {
+            var postId = element.getAttribute('data-postid');
+            var caption = element.getAttribute('data-caption');
+            var mediaUrl = element.getAttribute('data-mediaurl');
+            var isMyProfile = element.getAttribute('data-myprofile') === 'true';
+            
+            // Set inputs
+            document.getElementById('postOptionsForm:modalPostId').value = postId;
+            document.getElementById('postOptionsForm:modalCaption').value = caption;
+            document.getElementById('postOptionsForm:modalMediaUrl').value = mediaUrl;
+            
+            // Set preview image
+            var img = document.getElementById('previewImage');
+            if (mediaUrl &amp;&amp; mediaUrl.trim() !== '') {
+                img.src = mediaUrl;
+                img.style.display = 'block';
+                document.getElementById('previewMediaContainer').style.display = 'flex';
+            } else {
+                img.style.display = 'none';
+                document.getElementById('previewMediaContainer').style.display = 'none';
+            }
+            
+            // Toggle edit/view modes
+            if (isMyProfile) {
+                document.getElementById('modalTitle').innerText = "Edit Post";
+                document.getElementById('editModeSection').style.display = 'block';
+                document.getElementById('editActions').style.display = 'flex';
+                document.getElementById('viewModeSection').style.display = 'none';
+                document.getElementById('viewActions').style.display = 'none';
+            } else {
+                document.getElementById('modalTitle').innerText = "Post Details";
+                document.getElementById('editModeSection').style.display = 'none';
+                document.getElementById('editActions').style.display = 'none';
+                document.getElementById('viewModeSection').style.display = 'block';
+                document.getElementById('viewCaptionText').innerText = caption;
+                document.getElementById('viewActions').style.display = 'block';
+            }
+            
+            document.getElementById('postOptionsModal').style.display = 'flex';
+        }
+        
+        function closePostOptionsModal() {
+            document.getElementById('postOptionsModal').style.display = 'none';
+        }
+    </script>
+</h:body>
+</html>
